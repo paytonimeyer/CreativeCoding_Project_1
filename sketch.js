@@ -1,36 +1,29 @@
+//Arrays
 var worm = [];
 var worm2 = [];
 var worm3 = [];
 var worm4 = [];
 
-var index = 0;
 
 var decrement = .0001;
 var increment = .001;
 
 var deg = 0;
 
+//Array position 
 var xMov = 1;
 var yMov = 1;
 
+
 var speedX = 1
-var y = 0;
 var diameter = 20;
-var yOff = 0.0;
+
 
 
 function setup() {
-
   createCanvas(1000,1000);
   //println(bubble.x, bubble.y);
-
 }
-
-
-function mousePressed(){
-
-//  worm.push(new Worm(xMov, yMov, 220, 20, 127, 20));
-}  
 
 
 function draw() {
@@ -42,7 +35,8 @@ function draw() {
   deg+=increment;
 
   push();
-  
+
+  //set the starting point in the center of the canvas  
   translate(width/2, height/2);
 
 
@@ -51,7 +45,10 @@ function draw() {
   worm2.push(new Worm(xMov*-1, yMov, 20, 20, 20, 60));
   worm3.push(new Worm(xMov*-1, yMov*-1, 220, 20, 127, 20));
   worm4.push(new Worm(xMov, yMov*-1, 20, 20, 20, 60));
-
+ 
+  //Let's keep these turkeys on the canvas!
+  xMov = constrain(xMov,-500,500);
+  yMov = constrain(yMov,-500,500);
 
 
    if (choice < 1 ){
@@ -66,7 +63,7 @@ function draw() {
 
   //print(xMov);
 
-
+  //Working through the array backwards ensures no indecies are skipped during garbage collection
   for (var i = worm.length-1; i >= 0; i--) {
     worm[i].show();
     worm[i].fade();
@@ -78,23 +75,21 @@ function draw() {
     worm4[i].fade();
   }
 
- //Let's keep these turkeys on the canvas!
-  constrain(xMov,-200,200);
-  constrain(yMov,-200,200);
+
 
   pop();
 
     //Garbage collection - Removes the first item in the array after array length exceeds 2000
-    if (worm.length > 2000){
+    if (worm.length > 1500){
       worm.splice(0,1); 
     }
-    if (worm2.length > 2000){
+    if (worm2.length > 1500){
       worm2.splice(0,1); 
     }
-    if (worm3.length > 2000){
+    if (worm3.length > 1500){
       worm3.splice(0,1); 
     }
-    if (worm4.length > 2000){
+    if (worm4.length > 1500){
       worm4.splice(0,1); 
     }
 
