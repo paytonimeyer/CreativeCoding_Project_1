@@ -25,6 +25,7 @@ var yMov = 1;
 var diameter = 20;
 
 var mover = [];
+var mover2 = [];
 var movercenter = [];
 
 function setup() {
@@ -35,7 +36,7 @@ function setup() {
 
 
 function draw() {
-  background(50);
+  background(30);
 
 
 
@@ -63,8 +64,10 @@ function draw() {
   microbe4.push(new Microbe(xMov, yMov*-1, 20, 20, 20, 60));
 
   //for (var i=0; i<50; i++) {  
-    mover.push(new Mover(xMov, yMov)); 
-    movercenter.push(new MoverCenter(0, 0)); 
+  mover.push(new Mover(xMov, yMov)); 
+  mover2.push(new Mover(xMov*-1, yMov*-1)); 
+
+  movercenter.push(new MoverCenter(0, 0)); 
 //}
 
   //Let's keep these turkeys on the canvas!
@@ -82,7 +85,7 @@ function draw() {
         yMov = yMov - 15;
       }
   
-  mover.push(new Mover(xMov*-1, yMov*-1)); 
+
   
 
 
@@ -107,13 +110,19 @@ function draw() {
 
   }
 
+  for (var i = mover2.length-1; i >= 0; i--) {
+    mover2[i].display();
+    mover2[i].update();
+
+  }
 
   for (var i = movercenter.length-1; i >= 0; i--) {
     movercenter[i].display();
     movercenter[i].update();
 
+
   }
-  
+
   grid();
 
   //Working through the array backwards ensures no indecies are skipped during garbage collection
@@ -133,6 +142,7 @@ function draw() {
   pop();
 
     //Garbage collection - Removes the first item in the array after array length exceeds 2000
+
     if (burst.length > 15){
       burst.splice(0,1); 
     }
@@ -152,10 +162,13 @@ function draw() {
     if (microbe4.length > 1000){
       microbe4.splice(0,1); 
     }
-    if (mover.length > 100){
+    if (mover.length > 300){
       mover.splice(0,1); 
     }
-    if (movercenter.length > 100){
+    if (mover2.length > 300){
+      mover2.splice(0,1); 
+    }
+    if (movercenter.length > 20){
       movercenter.splice(0,1); 
     }
 
@@ -281,14 +294,21 @@ function grid(){
 
         var gridVariance2 = 0;
         var opacityVariance = 2;
+        var opacityVarianceInverse = 0;
+
         //var gv = constrain(gridVariance, 0, 400);
 
         gridVariance = dist(xMov,yMov, k, l);
         gridVariance2 = dist(xMov*-1,yMov*-1, k, l);
-        opacityVariance = dist(k, l, xMov,yMov);
+        opacityVariance = dist(0,0, k*.4, l*.4);
+
+        constrain(opacityVariance, 0, 255);
+       // opacityVarianceInverse = opacityVariance*-1;
+
+        var m = map(opacityVariance, 0, 255, 255, 0);
 
         noStroke();
-        fill(255,255,255,constrain(opacityVariance, 0,2.5));
+        fill(255,255,255,m/15);
         beginShape();
         vertex(k, l);
         vertex(k+55, l);
@@ -296,7 +316,7 @@ function grid(){
         vertex(k, l+55);
         endShape(CLOSE);
 
-
+        //print(opa);
       //  rectMode(CENTER);
        // noStroke();
        // fill(255,255,255,constrain(opacityVariance, 0,2.5));
@@ -399,7 +419,7 @@ function MoverCenter(tempX, tempY) {
   this.position = createVector(random(-10,10),random(-10,10));
   this.velocity = createVector();
   this.acceleration = createVector();
-  this.topspeed = 25;
+  this.topspeed = 55;
 
   this.xPos = tempX;
   this.yPos = tempY;
@@ -413,7 +433,7 @@ function MoverCenter(tempX, tempY) {
     var follow = createVector(this.xPos,this.yPos);
     this.acceleration = p5.Vector.sub(follow,this.position);
     // Set magnitude of acceleration
-    this.acceleration.setMag(0.2);
+    this.acceleration.setMag(2);
 
     this.velocity.add(this.acceleration);
     this.velocity.limit(this.topspeed);
