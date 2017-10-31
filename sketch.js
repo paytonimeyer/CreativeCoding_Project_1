@@ -24,10 +24,12 @@ var yMov = 1;
 //Microbe diameter
 var diameter = 20;
 
-
+var mover = [];
+var movercenter = [];
 
 function setup() {
   createCanvas(1000,1000);
+
   //println(bubble.x, bubble.y);
 }
 
@@ -59,7 +61,12 @@ function draw() {
   microbe2.push(new Microbe(xMov*-1, yMov, 20, 20, 20, 60));
   microbe3.push(new Microbe(xMov*-1, yMov*-1, 220, 20, 127, 20));
   microbe4.push(new Microbe(xMov, yMov*-1, 20, 20, 20, 60));
- 
+
+  //for (var i=0; i<50; i++) {  
+    mover.push(new Mover(xMov, yMov)); 
+    movercenter.push(new MoverCenter(0, 0)); 
+//}
+
   //Let's keep these turkeys on the canvas!
   xMov = constrain(xMov,-500,500);
   yMov = constrain(yMov,-500,500);
@@ -74,6 +81,9 @@ function draw() {
       } else {
         yMov = yMov - 15;
       }
+  
+  mover.push(new Mover(xMov*-1, yMov*-1)); 
+  
 
 
   burst.push(new Burst(xMov, yMov));
@@ -91,7 +101,19 @@ function draw() {
   }
   //print(xMov);
 
+  for (var i = mover.length-1; i >= 0; i--) {
+    mover[i].display();
+    mover[i].update();
 
+  }
+
+
+  for (var i = movercenter.length-1; i >= 0; i--) {
+    movercenter[i].display();
+    movercenter[i].update();
+
+  }
+  
   grid();
 
   //Working through the array backwards ensures no indecies are skipped during garbage collection
@@ -111,24 +133,30 @@ function draw() {
   pop();
 
     //Garbage collection - Removes the first item in the array after array length exceeds 2000
-    if (burst.length > 5){
+    if (burst.length > 15){
       burst.splice(0,1); 
     }
-    if (burst2.length > 5){
+    if (burst2.length > 15){
       burst2.splice(0,1); 
     }
 
-    if (microbe.length > 1500){
+    if (microbe.length > 1000){
       microbe.splice(0,1); 
     }
-    if (microbe2.length > 1500){
+    if (microbe2.length > 1000){
       microbe2.splice(0,1); 
     }
-    if (microbe3.length > 1500){
+    if (microbe3.length > 1000){
       microbe3.splice(0,1); 
     }
-    if (microbe4.length > 1500){
+    if (microbe4.length > 1000){
       microbe4.splice(0,1); 
+    }
+    if (mover.length > 100){
+      mover.splice(0,1); 
+    }
+    if (movercenter.length > 100){
+      movercenter.splice(0,1); 
     }
 
 
@@ -230,7 +258,7 @@ this.show = function() {
 
   }
 
- print (this.xPos);
+// print (this.xPos);
 
   this.isFinished = function(){
     if (this.o<0){
@@ -303,7 +331,8 @@ function Burst(tempX, tempY) {
 
     this.time = 0.0;  
     this.increment = .01;
-    this.lineLoc = noise(this.time)*width/10;
+    //this.lineLoc = noise(this.time)*width/10;
+this.lineLoc = 0;
 
   this.show = function() {  
 
@@ -330,3 +359,72 @@ function Burst(tempX, tempY) {
 }
 
 
+function Mover(tempX, tempY) {
+
+  this.position = createVector(this.xPos,this.yPos);
+  this.velocity = createVector();
+  this.acceleration = createVector();
+  this.topspeed = 15;
+
+  this.xPos = tempX;
+  this.yPos = tempY;
+
+  //this.o = dist(255, 255, this.xPos, this.yPos);
+
+  this.o = 10;
+
+  this.update = function() {
+    // Compute a vector that points from position to mouse
+    var follow = createVector(this.xPos,this.yPos);
+    this.acceleration = p5.Vector.sub(follow,this.position);
+    // Set magnitude of acceleration
+    this.acceleration.setMag(0.2);
+
+    this.velocity.add(this.acceleration);
+    this.velocity.limit(this.topspeed);
+    this.position.add(this.velocity);
+  };
+
+  this.display = function() {
+    noStroke();
+    fill(255,255,255,this.o);
+    ellipse(this.position.x, this.position.y, 10, 10);
+  };
+
+
+}
+
+function MoverCenter(tempX, tempY) {
+
+  this.position = createVector(random(-10,10),random(-10,10));
+  this.velocity = createVector();
+  this.acceleration = createVector();
+  this.topspeed = 25;
+
+  this.xPos = tempX;
+  this.yPos = tempY;
+
+  //this.o = dist(255, 255, this.xPos, this.yPos);
+
+  this.o = 255;
+
+  this.update = function() {
+    // Compute a vector that points from position to mouse
+    var follow = createVector(this.xPos,this.yPos);
+    this.acceleration = p5.Vector.sub(follow,this.position);
+    // Set magnitude of acceleration
+    this.acceleration.setMag(0.2);
+
+    this.velocity.add(this.acceleration);
+    this.velocity.limit(this.topspeed);
+    this.position.add(this.velocity);
+  };
+
+  this.display = function() {
+    noStroke();
+    fill(0,0,0,this.o);
+    ellipse(this.position.x, this.position.y, 15, 15);
+  };
+
+
+}
