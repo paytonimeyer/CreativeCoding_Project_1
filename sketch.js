@@ -1,6 +1,5 @@
 /***MICROBIAL***/
 
-
 //Arrays
 var microbe = [];
 var microbe2 = [];
@@ -27,16 +26,42 @@ var diameter = 20;
 var mover = [];
 var mover2 = [];
 var movercenter = [];
+var movercenter2 = [];
+
+//Grid Array + Index Var
+var grid = [];
+var index = 0;
 
 function setup() {
   createCanvas(1000,1000);
 
-  //println(bubble.x, bubble.y);
+
+    //Spotlight Grid Background Setup
+    for (var k = -1000; k < 1000; k = k + 75) {
+      for (var l = -1000; l < 1000; l = l + 75){
+
+        var opacityVariance = 2;
+        var opacityVarianceInverse = 0;
+
+        gridVariance = dist(xMov,yMov, k, l);
+        opacityVariance = dist(0,0, k*.6, l*.6);
+
+        constrain(opacityVariance, 0, 255);
+
+        //Remapping the spotlight so its light in the middle and dark outside(this took forever to figure out lol)
+        var m = map(opacityVariance, 0, 255, 255, 0);
+
+        grid[index++] = new Grid(k, l, m/8);
+
+      }
+    }
+
+
 }
 
 
 function draw() {
-  background(30);
+  background(40);
 
 
 
@@ -67,7 +92,9 @@ function draw() {
   mover.push(new Mover(xMov, yMov)); 
   mover2.push(new Mover(xMov*-1, yMov*-1)); 
 
+  movercenter2.push(new MoverCenter2(0, 0)); 
   movercenter.push(new MoverCenter(0, 0)); 
+
 //}
 
   //Let's keep these turkeys on the canvas!
@@ -91,17 +118,18 @@ function draw() {
 
   burst.push(new Burst(xMov, yMov));
   burst2.push(new Burst(xMov*-1, yMov*-1));
-  //Make a line burst under certain conditions
-  /*if(xMov > -500 && xMov <500){
-    burst.push(new Burst(xMov, yMov));
-    burst2.push(new Burst(xMov, yMov*-1));
-  }*/
 
   for (var i = burst.length-1; i >= 0; i--) {
     burst[i].show();
     burst2[i].show();
-
   }
+
+
+
+  for (var i = grid.length-1; i >= 0; i--) {
+            grid[i].show();
+  }
+  //grid();
   //print(xMov);
 
   for (var i = mover.length-1; i >= 0; i--) {
@@ -116,14 +144,19 @@ function draw() {
 
   }
 
+  for (var i = movercenter2.length-1; i >= 0; i--) {
+    movercenter2[i].display();
+    movercenter2[i].update();
+
+  }
+
+
   for (var i = movercenter.length-1; i >= 0; i--) {
     movercenter[i].display();
     movercenter[i].update();
 
-
   }
 
-  grid();
 
   //Working through the array backwards ensures no indecies are skipped during garbage collection
   for (var i = microbe.length-1; i >= 0; i--) {
@@ -136,6 +169,7 @@ function draw() {
     microbe4[i].show();
     microbe4[i].fade();
   }
+
 
 
 
@@ -171,9 +205,14 @@ function draw() {
     if (movercenter.length > 20){
       movercenter.splice(0,1); 
     }
+    if (movercenter2.length > 20){
+      movercenter2.splice(0,1); 
+    }
 
-
+    print(grid.length);
 }
+
+
 
 
 
@@ -228,7 +267,7 @@ function Microbe(tempX, tempY, tempR, tempG, tempB, tempdivideSize) {
 
   //Functionality (Draw + Grow + Dry)
 this.show = function() {  
-    this.n = noise(this.time)*width;
+    this.n = noise(this.time)*1500;
     noStroke();
     fill(this.r, this.g, this.b, this.o);
     ellipse(this.xPos+this.x, this.yPos+this.y, this.n/this.divideSize, this.n/this.divideSize);
@@ -300,47 +339,60 @@ function grid(){
 
         gridVariance = dist(xMov,yMov, k, l);
         gridVariance2 = dist(xMov*-1,yMov*-1, k, l);
-        opacityVariance = dist(0,0, k*.4, l*.4);
+        opacityVariance = dist(0,0, k*.6, l*.6);
 
         constrain(opacityVariance, 0, 255);
        // opacityVarianceInverse = opacityVariance*-1;
 
         var m = map(opacityVariance, 0, 255, 255, 0);
 
+        var cornerVariance = 5;
+
         noStroke();
-        fill(255,255,255,m/15);
-        beginShape();
-        vertex(k, l);
-        vertex(k+55, l);
-        vertex(k+55, l+55);
-        vertex(k, l+55);
-        endShape(CLOSE);
-
-        //print(opa);
-      //  rectMode(CENTER);
-       // noStroke();
-       // fill(255,255,255,constrain(opacityVariance, 0,2.5));
-       // rect(k,l, constrain(gridVariance, 20,55),constrain(gridVariance, 20,55));
+        fill(255,255,255,m/5);
+        rectMode(CENTER);
+        rect(k,l, 55, 55, cornerVariance)
 
 
-        //rectMode(CENTER);
-        //noStroke();
-        //fill(255,255,255,constrain(opacityVariance, 0,2.5));
-        //rect(k,l, constrain(gridVariance2, 20,55),constrain(gridVariance2, 20,55));
-
-
-        //beginShape();
-        //vertex(k+gridVariance, l);
-        //vertex(k+55, l);
-        //vertex(k+55, l+55);
-        //vertex(k,l+55);
-        //endShape(CLOSE);
 
       }
     }
-
+        cornerVariance = cornerVariance + 1;
 
 }
+
+function Grid(tempX, tempY, tempO) {
+
+    this.xPos = tempX;
+    this.yPos = tempY;
+    this.o = tempO;
+
+    this.time = 0.0;  
+    this.increment = .01;
+    this.cornerVariance = random(5,50);
+
+    this.speedCorner = .5;  
+
+  this.show = function() {  
+
+    this.n = noise(this.time)*width/50;
+    this.time = this.time + this.increment;
+
+    noStroke();
+    fill(255,255,255,this.o);
+    rectMode(CENTER);
+    rect(this.xPos, this.yPos, 55+this.n, 55+this.n, this.cornerVariance)
+
+    this.cornerVariance = this.cornerVariance + this.speedCorner;
+
+    if ((this.cornerVariance > 50 || this.cornerVariance < 1 )) {
+      this.speedCorner = this.speedCorner * -1;
+    }
+
+  }
+}
+
+
 
 
 //Line Burst Function
@@ -352,7 +404,7 @@ function Burst(tempX, tempY) {
     this.time = 0.0;  
     this.increment = .01;
     //this.lineLoc = noise(this.time)*width/10;
-this.lineLoc = 0;
+    this.lineLoc = 0;
 
   this.show = function() {  
 
@@ -444,6 +496,41 @@ function MoverCenter(tempX, tempY) {
     noStroke();
     fill(0,0,0,this.o);
     ellipse(this.position.x, this.position.y, 15, 15);
+  };
+
+
+}
+
+function MoverCenter2(tempX, tempY) {
+
+  this.position = createVector(random(-10,10),random(-10,10));
+  this.velocity = createVector();
+  this.acceleration = createVector();
+  this.topspeed = 55;
+
+  this.xPos = tempX;
+  this.yPos = tempY;
+
+  //this.o = dist(255, 255, this.xPos, this.yPos);
+
+  this.o = 255;
+
+  this.update = function() {
+    // Compute a vector that points from position to mouse
+    var follow = createVector(this.xPos,this.yPos);
+    this.acceleration = p5.Vector.sub(follow,this.position);
+    // Set magnitude of acceleration
+    this.acceleration.setMag(1);
+
+    this.velocity.add(this.acceleration);
+    this.velocity.limit(this.topspeed);
+    this.position.add(this.velocity);
+  };
+
+  this.display = function() {
+    noStroke();
+    fill(127,127,127,this.o);
+    ellipse(this.position.x, this.position.y, 55, 55);
   };
 
 
