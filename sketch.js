@@ -25,7 +25,6 @@ var index2 = 0;
 //Traveler array
 var traveler = [];
 var traveler2 = [];
-
 var othertraveler = [];
 var othertraveler2 = [];
 
@@ -46,7 +45,6 @@ var yMov = 1;
 //Traveler Array position 
 var travXPos = 0;
 var travYPos = 0;
-
 var travXPos2 = 0;
 
 //Microbe diameter
@@ -58,34 +56,37 @@ function setup() {
   createCanvas(windowWidth,windowHeight);
   //Spotlight Grid Background Setup
   gridOfRects();
-  gridOfTris();
 }
-
 
 function draw() {
   background(40);
-  bgMicrobes();
+  //Traveling microbe function
   microbialTravelers();
+  //Rotating microbe function
   rotatingMicrobes();
-
   //Garbage man cometh and taketh out the unneccsary indecies so the program doesn't run slow
   garbageMan();
 }
 
-function bgMicrobes() {
-  push();  
-  spinOppositeSlow(); 
-  pushTris();
+function microbialTravelers() {
+  microbialTravelersBlack();
+  microbialTravelersWhite(); 
+}
+
+//microbial traveler organization
+function microbialTravelersBlack() {
+  push(); 
+  //spin function - makes animations more interesting because they constatly enter the canvas at different locations
+  spinOpposite();
+  //black travelers function 
+  pushTravelers2();
   pop();
 }
 
 //microbial traveler organization
-function microbialTravelers() {
+function microbialTravelersWhite() {
   push();  
-  spinOpposite(); 
-  pushTravelers2();
-  pop();
-  push();  
+  //white travelers function
   pushTravelers();
   pop();
 }
@@ -98,6 +99,27 @@ function rotatingMicrobes() {
   pushEveryClass();
   moveEveryClass(); 
   pop();
+}
+
+//Spin function (clockwise)
+function spin() {
+  deg+=increment;
+  translate(width/2, height/2);
+  rotate(deg);
+}
+
+//Spin function (counter-clockwise)
+function spinOpposite() {
+  deg2-=increment;
+  translate(width/2, height/2);
+  rotate(deg2);
+}
+
+//Spin function (counter-clockwise slow)
+function spinOppositeSlow() {
+  deg3-=decrement;
+  //translate(width/2, height/2);
+  rotate(deg3);
 }
 
 //Microbe Class
@@ -166,120 +188,6 @@ function Microbe(tempX, tempY, tempR, tempG, tempB, tempdivideSize) {
     constrain(this.xPos, -200, 200);
     constrain(this.yPos, -200, 200);
   }
-
-  // print (this.xPos);
-  this.isFinished = function(){
-    if (this.o<0){
-      return true;
-    } else {
-      return false;
-    }
-  }
-}
-
-
-//Moving rect grid background - this is actually a class for just one rectangle with methods.
-//I will create the grid with a for loop by passing its location variables into it's constructor. 
-function Grid(tempX, tempY, tempO) {
-  //x and y positions 
-  this.xPos = tempX;
-  this.yPos = tempY;
-
-  //opactiy
-  this.o = tempO;
-
-  //time for variance in noise
-  this.time = 0.0;  
-    
-  //incrementor 
-  this.increment = .01;
-    
-  //initally each rect will start with a random corner radius
-  this.cornerVariance = random(5,50);
-
-  //the speed in which each corner will soften
-  this.speedCorner = .5;  
-
-  this.show = function() {  
-
-    this.n = noise(this.time)*width/10;
-    this.time = this.time + this.increment;
-
-    noStroke();
-    fill(255,255,255,this.o);
-    rectMode(CENTER);
-    rect(this.xPos, this.yPos, 5+this.n, 5+this.n, this.cornerVariance)
-
-    this.cornerVariance = this.cornerVariance + this.speedCorner;
-
-    if ((this.cornerVariance > 50 || this.cornerVariance < 1 )) {
-      this.speedCorner = this.speedCorner * -1;
-    }
-  }
-}
-
-
-function gridOfRects() {
-  //For loop to turn my rect object into a grid
-  for (var k = -975; k < 1025; k = k + 75) {
-    for (var l = -975; l < 1025; l = l + 75){
-
-      var opacityVariance = 2;
-      var opacityVarianceInverse = 0;
-
-      gridVariance = dist(xMov,yMov, k, l);
-      opacityVariance = dist(0,0, k*.6, l*.6);
-
-      constrain(opacityVariance, 0, 255);
-
-      //Remapping the spotlight so its light in the middle and dark outside(this took forever to figure out lol)
-      var m = map(opacityVariance, 0, 255, 255, 0);
-
-      grid[index++] = new Grid(k, l, m/8);
-    }
-  }
-}
-
-function Tris() {
-  //x and y positions 
-  this.xPos = random(-500,500);
-  this.yPos = random(-500,500);
-  this.speed = 1;
-
-  //time for variance in noise
-  this.time = 0.0;  
-    
-  //incrementor 
-  this.increment = .01;
-    
-  this.show = function() {  
-
-    this.n = noise(this.time)*width/200;
-    this.time = this.time + this.increment;
-
-    noStroke();
-    fill(15,15,15);
-    rectMode(CENTER);
-    rect(this.xPos, this.yPos, this.n, this.n)
-  }
-  this.move = function() {  
-
-  //this.xPos += random(-this.speed,this.speed);
-  }
-}
-
-function gridOfTris() {
-  //For loop to turn my rect object into a grid
-  for (var i=0; i<200; i++) {
-    tris.push(new Tris());
-  }
-}
-
-function pushTris() {
-  for (var i = tris.length-1; i >= 0; i--) {
-    tris[i].show();
-    tris[i].move();
-  }  
 }
 
 //Line Burst Function - draws lines that start at the center and end at movX movY position 
@@ -329,7 +237,6 @@ function Mover(tempX, tempY) {
   };
 }
 
-
 //Center black blobs (large) that are the origin of the rest of the microbes
 function MoverCenter(tempX, tempY) {
 
@@ -371,10 +278,8 @@ function MoverCenter(tempX, tempY) {
     if (this.s % 5){
      // this.diameter = this.diameter + 5;
     }
-
   };
 }
-
 
 //Center black blobs (small/faster) that are the origin of the rest of the microbes
 function MoverCenter2(tempX, tempY) {
@@ -405,25 +310,8 @@ function MoverCenter2(tempX, tempY) {
     fill(0,0,0,this.o);
     ellipse(this.position.x, this.position.y, 5, 5);
   };
-
-
 }
 
-function spin() {
-  deg+=increment;
-  translate(width/2, height/2);
-  rotate(deg);
-}
-function spinOpposite() {
-  deg2-=increment;
-  translate(width/2, height/2);
-  rotate(deg2);
-}
-function spinOppositeSlow() {
-  deg2-=decrement;
-  translate(width/2, height/2);
-  rotate(deg2);
-}
 
 //Microbe Traveler Class
 function Traveler(tempX, tempWidthNoise, tempShade) {
@@ -449,61 +337,8 @@ function Traveler(tempX, tempWidthNoise, tempShade) {
 
     this.xPos = this.xPos + 2;
     //this.yPos = this.yPos + this.n;
-  }
-}
-
-//Microbe Traveler Class
-function Traveler2(tempX, tempWidthNoise, tempShade) {
-  //Microbe Constructor Variables
-  this.xPos = tempX;
-  //this.yPos = tempY;
-  this.s = second();
-  this.wn = tempWidthNoise;
-
-  this.shade = tempShade;
-
-  this.time = 0.0;  
-  this.increment = .005;
-
-  //Show, grow and color fade functionality
-  this.show = function() {
-    this.n = noise(this.time)*height/1.5;
-    this.time = this.time + this.increment;
-
-    noStroke();
-    fill(this.shade);
-    ellipse(this.xPos, this.n, 2+this.n/this.wn, 2+this.n/this.wn);
-
-    this.xPos = this.xPos - 5;
-    //this.yPos = this.yPos + this.n;
     constrain(this.n, 0, height);
   }
-}
-
-//Push Traveler Class Function - continuously pushes new travelers under certain time conditions. 
-function pushTravelers2() {
-  //background(0);
-  this.s = second();
-
-  //create travelers when seconds are between 10 and 25
-  if(s>30 && s<50){
-    if(this.s%3){
-      othertraveler.push(new Traveler2(travXPos2+width,15,25));
-    }    
-
-    if(this.s%5){
-      othertraveler2.push(new Traveler2(travXPos2+width,500,5));
-    }    
-
-  }
-
-
-  for (var i = othertraveler.length-1; i >= 0; i--) {
-    othertraveler[i].show();
-  }  
-  for (var i = othertraveler2.length-1; i >= 0; i--) {
-    othertraveler2[i].show();
-  }  
 }
 
 //Push Traveler Class Function - continuously pushes new travelers under certain time conditions. 
@@ -529,9 +364,154 @@ function pushTravelers() {
   for (var i = traveler2.length-1; i >= 0; i--) {
     traveler2[i].show();
   }
+}
 
-  
+//Black Microbe Traveler Class
+function Traveler2(tempX, tempWidthNoise, tempShade) {
+  //Microbe Constructor Variables
+  this.xPos = tempX;
+  this.s = second();
+  this.wn = tempWidthNoise;
+  //Color
+  this.shade = tempShade;
 
+  this.time = 0.0;  
+  this.increment = .005;
+
+  //Show, grow and color fade functionality
+  this.show = function() {
+    this.n = noise(this.time)*height/1.5;
+    this.time = this.time + this.increment;
+
+    noStroke();
+    fill(this.shade);
+    ellipse(this.xPos, this.n, 2+this.n/this.wn, 2+this.n/this.wn);
+
+    this.xPos = this.xPos - 5;
+    //this.yPos = this.yPos + this.n;
+    constrain(this.n, 0, height);
+  }
+}
+
+//Push Traveler Class Function - continuously pushes new travelers under certain time conditions. 
+function pushTravelers2() {
+  this.s = second();
+
+  //create travelers when seconds are between 10 and 25
+  if(s>30 && s<50){
+    if(this.s%3){
+      othertraveler.push(new Traveler2(travXPos2+width,15,25));
+    }    
+    if(this.s%5){
+      othertraveler2.push(new Traveler2(travXPos2+width,500,5));
+    }    
+  }
+
+  for (var i = othertraveler.length-1; i >= 0; i--) {
+    othertraveler[i].show();
+  }  
+  for (var i = othertraveler2.length-1; i >= 0; i--) {
+    othertraveler2[i].show();
+  }  
+}
+
+//Moving rect grid background - this is actually a class for just one rectangle with methods.
+//I will create the grid with a for loop by passing its location variables into it's constructor. 
+function Grid(tempX, tempY, tempO) {
+  //x and y positions 
+  this.xPos = tempX;
+  this.yPos = tempY;
+
+  //opactiy
+  this.o = tempO;
+
+  //time for variance in noise
+  this.time = 0.0;  
+    
+  //incrementor 
+  this.increment = .01;
+    
+  //initally each rect will start with a random corner radius
+  this.cornerVariance = random(5,50);
+
+  //the speed in which each corner will soften
+  this.speedCorner = .5;  
+
+  this.show = function() {  
+
+    this.n = noise(this.time)*width/10;
+    this.time = this.time + this.increment;
+
+    noStroke();
+    fill(255,255,255,this.o);
+    rectMode(CENTER);
+    rect(this.xPos, this.yPos, 5+this.n, 5+this.n, this.cornerVariance)
+
+    this.cornerVariance = this.cornerVariance + this.speedCorner;
+
+    if ((this.cornerVariance > 50 || this.cornerVariance < 1 )) {
+      this.speedCorner = this.speedCorner * -1;
+    }
+  }
+}
+
+//Creating a grid out of my grid class, this will be initialized in setup while grid.show will be ran in draw
+function gridOfRects() {
+  //For loop to turn my rect object into a grid
+  for (var k = -975; k < 1025; k = k + 75) {
+    for (var l = -975; l < 1025; l = l + 75){
+
+      var opacityVariance = 2;
+      var opacityVarianceInverse = 0;
+
+      gridVariance = dist(xMov,yMov, k, l);
+      opacityVariance = dist(0,0, k*.6, l*.6);
+
+      constrain(opacityVariance, 0, 255);
+
+      //Remapping the spotlight so its light in the middle and dark outside(this took forever to figure out lol)
+      var m = map(opacityVariance, 0, 255, 255, 0);
+
+      grid[index++] = new Grid(k, l, m/8);
+    }
+  }
+}
+
+function Tris() {
+  //Tri constructor vars
+  //x and y positions 
+  this.xPos = random(-500,500);
+  this.yPos = random(-500,500);
+  this.speed = 1;
+  //time for variance in noise
+  this.time = 0.0;  
+  //incrementor 
+  this.increment = .01;
+    
+  this.show = function() {  
+
+    this.n = noise(this.time)*width/200;
+    this.time = this.time + this.increment;
+
+    noStroke();
+    fill(15,15,15);
+    rectMode(CENTER);
+    rect(this.xPos, this.yPos, this.n, this.n)
+  }
+}
+
+function gridOfTris() {
+  //For loop to turn my rect object into a grid
+  for (var i=0; i<200; i++) {
+    tris.push(new Tris());
+  }
+}
+
+function pushTris() {
+  for (var i = tris.length-1; i >= 0; i--) {
+    tris[i].show();
+    tris[i].move();
+  }  
 }
 
 //Push Every Class Function - continuously pushes new classes building on the array endlessly
@@ -550,7 +530,7 @@ function pushEveryClass() {
   mover.push(new Mover(xMov, yMov)); 
   mover2.push(new Mover(xMov*-1, yMov*-1)); 
 
-  //
+  //origin blobs 
   movercenter2.push(new MoverCenter2(0, 0)); 
   movercenter.push(new MoverCenter(0, 0)); 
 
@@ -560,56 +540,47 @@ function pushEveryClass() {
 
   //dice variabale is rolled every frame the result will inform the direction of the microbes
   var choice = random(0,4);
-
-   if (choice < 1 ){
-        xMov = xMov - 15;
-      } else if (choice < 2 ){
-        xMov = xMov + 15;
-      } else if (choice < 3 ){
-        yMov = yMov + 15;
-      } else {
-        yMov = yMov - 15;
-      }
+  //dice roll conditionals 
+  if (choice < 1 ){
+    xMov = xMov - 15;
+  } else if (choice < 2 ){
+    xMov = xMov + 15;
+  } else if (choice < 3 ){
+    yMov = yMov + 15;
+  } else {
+    yMov = yMov - 15;
+  }
 }
-
 
 //Move Every Class Function - makes sure every instance of every class runs 
 //through its functions during its lifespan on the canvas
 function moveEveryClass() {
   //Working through the array backwards ensures no indecies are skipped during garbage collection
-
   for (var i = burst.length-1; i >= 0; i--) {
     burst[i].show();
   }
-
   for (var i = burst2.length-1; i >= 0; i--) {
     burst2[i].show();
   }
-
   for (var i = grid.length-1; i >= 0; i--) {
     grid[i].show();
   }
-
   for (var i = mover.length-1; i >= 0; i--) {
     mover[i].display();
     mover[i].update();
   }
-
   for (var i = mover2.length-1; i >= 0; i--) {
     mover2[i].display();
     mover2[i].update();
   }
-
   for (var i = movercenter2.length-1; i >= 0; i--) {
     movercenter2[i].display();
     movercenter2[i].update();
   }
-
   for (var i = movercenter.length-1; i >= 0; i--) {
     movercenter[i].display();
     movercenter[i].update();
   }
-
   for (var i = microbe.length-1; i >= 0; i--) {
     microbe[i].show();
     microbe[i].fade();
@@ -621,7 +592,6 @@ function moveEveryClass() {
     microbe4[i].fade();
   }
 }
-
 
 //Garbage man cometh and taketh out the unneccsary indecies so the program doesn't run slow
 function garbageMan() {
@@ -669,11 +639,10 @@ function garbageMan() {
   if (traveler.length > 800){
     traveler.splice(0,1); 
   }
-    //Constrain center movers to 20 at a time
+  //Constrain center movers to 20 at a time
   if (traveler2.length > 800){
     traveler2.splice(0,1); 
   }  
-
   //Constrain center movers to 20 at a time
   if (othertraveler.length > 800){
     othertraveler.splice(0,1); 
