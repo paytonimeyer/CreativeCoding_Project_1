@@ -25,12 +25,8 @@ var index2 = 0;
 //Traveler array
 var traveler = [];
 var traveler2 = [];
-
 var othertraveler = [];
 var othertraveler2 = [];
-
-var othertraveler3 = [];
-var othertraveler4 = [];
 
 //Variance variables 
 var decrement = .0001;
@@ -54,32 +50,25 @@ var travXPos2 = 0;
 //Microbe diameter
 var diameter = 20;
 
-var pg;
 
 function setup() {
   //Be somebody - Be as big as the window
   createCanvas(windowWidth,windowHeight);
-
   //Spotlight Grid Background Setup
   gridOfRects();
 }
 
 function draw() {
-  background(215);
-  
+  background(40);
   //Traveling microbe function
   microbialTravelers();
   //Rotating microbe function
   rotatingMicrobes();
   //Garbage man cometh and taketh out the unneccsary indecies so the program doesn't run slow
   garbageMan();
-
-
-     print (s);
 }
 
 function microbialTravelers() {
-  microbialTravelersBlack2()
   microbialTravelersBlack();
   microbialTravelersWhite(); 
 }
@@ -91,13 +80,6 @@ function microbialTravelersBlack() {
   spinOpposite();
   //black travelers function 
   pushTravelers2();
-  pop();
-}
-
-function microbialTravelersBlack2() {
-  push(); 
-  spinOppositeSlow();
-  pushTravelers3(); 
   pop();
 }
 
@@ -141,7 +123,7 @@ function spinOppositeSlow() {
 }
 
 //Microbe Class
-function Microbe(tempX, tempY, tempR, tempG, tempB, tempDivide) {
+function Microbe(tempX, tempY, tempR, tempG, tempB, tempdivideSize) {
   //Microbe Constructor Variables
   this.drops = 0;
   this.x = random(0, 10);
@@ -156,18 +138,18 @@ function Microbe(tempX, tempY, tempR, tempG, tempB, tempDivide) {
   this.r = tempR;
   this.g = tempG;
   this.b = tempB;
-  this.rspeed = .45;
-  this.gspeed = .45;    
-  this.bspeed = .45;
+  this.rspeed = .25;
+  this.gspeed = .25;    
+  this.bspeed = .25;
   this.choice = random(0,4);
-  this.divide = tempDivide;
+  this.divideSize = tempdivideSize;
 
   //Show, grow and color fade functionality
   this.show = function() {  
-    this.n = noise(this.time)*width/15;
+    this.n = noise(this.time)*1500;
     noStroke();
     fill(this.r, this.g, this.b, this.o);
-    ellipse(this.xPos+this.x, this.yPos+this.y, this.n/this.divide, this.n/this.divide);
+    ellipse(this.xPos+this.x, this.yPos+this.y, this.n/this.divideSize, this.n/this.divideSize);
 
     //color builder - this will constantly change the r, g, b values of each microbe on the canvas
     this.r = this.r + this.rspeed;
@@ -202,6 +184,7 @@ function Microbe(tempX, tempY, tempR, tempG, tempB, tempDivide) {
       this.yPos--;
     }
 
+    //print (this.choice);
     constrain(this.xPos, -200, 200);
     constrain(this.yPos, -200, 200);
   }
@@ -249,7 +232,7 @@ function Mover(tempX, tempY) {
 
   this.display = function() {
     noStroke();
-    fill(15,15,15,this.o);
+    fill(255,255,255,this.o);
     ellipse(this.position.x, this.position.y, 10, 10);
   };
 }
@@ -339,11 +322,10 @@ function Traveler(tempX, tempWidthNoise, tempShade) {
   this.wn = tempWidthNoise;
 
   this.shade = tempShade;
-  this.gird  = .001;
+
   this.time = 0.0;  
   this.increment = .005;
 
-  this.gSpeed = 1;
   //Show, grow and color fade functionality
   this.show = function() {  
     this.n = noise(this.time)*height;
@@ -351,15 +333,11 @@ function Traveler(tempX, tempWidthNoise, tempShade) {
 
     noStroke();
     fill(this.shade);
-    ellipse(this.xPos, this.n, this.n/this.wn+this.gird, this.n/this.wn+this.gird);
+    ellipse(this.xPos, this.n, 2+this.n/this.wn, 2+this.n/this.wn);
 
-    this.xPos = this.xPos + 5;
+    this.xPos = this.xPos + 2;
     //this.yPos = this.yPos + this.n;
     constrain(this.n, 0, height);
-    this.gird = this.gird + this.gSpeed;
-    if ((this.gird > 50 || this.gird < 0 )) {
-      this.gSpeed = this.gSpeed * -1;
-    }
   }
 }
 
@@ -369,13 +347,13 @@ function pushTravelers() {
   this.s = second();
 
   //create travelers when seconds are between 10 and 25
-  if(s>10 && s<11 || s>25 && s<27 || s>31 && s<32 || s>45 && s<46){
+  if(s>10 && s<25){
     if(this.s%3){
-      traveler.push(new Traveler(travXPos,30,255));
+      traveler.push(new Traveler(travXPos,50,255));
     }
     
     if(this.s%5){
-      traveler2.push(new Traveler(travXPos,1000,200));
+      traveler2.push(new Traveler(travXPos,200,200));
     }
   }
 
@@ -386,8 +364,6 @@ function pushTravelers() {
   for (var i = traveler2.length-1; i >= 0; i--) {
     traveler2[i].show();
   }
-
-
 }
 
 //Black Microbe Traveler Class
@@ -404,7 +380,7 @@ function Traveler2(tempX, tempWidthNoise, tempShade) {
 
   //Show, grow and color fade functionality
   this.show = function() {
-    this.n = noise(this.time)*height;
+    this.n = noise(this.time)*height/1.5;
     this.time = this.time + this.increment;
 
     noStroke();
@@ -422,7 +398,7 @@ function pushTravelers2() {
   this.s = second();
 
   //create travelers when seconds are between 10 and 25
-  if(s>8 && s<9 || s>0 && s<5 || s>15 && s<17 || s>25 && s<26 || s>40 && s<50){
+  if(s>30 && s<50){
     if(this.s%3){
       othertraveler.push(new Traveler2(travXPos2+width,15,25));
     }    
@@ -437,65 +413,6 @@ function pushTravelers2() {
   for (var i = othertraveler2.length-1; i >= 0; i--) {
     othertraveler2[i].show();
   }  
-
-
-}
-
-//Black Microbe Traveler Class
-function Traveler3(tempX, tempWidthNoise, tempShade) {
-  //Microbe Constructor Variables
-  this.xPos = tempX;
-  this.s = second();
-  this.wn = tempWidthNoise;
-  //Color
-  this.shade = tempShade;
-  this.gird  = .001;
-  this.time = 0.0;  
-  this.increment = .005;
-
-  this.gSpeed = 1;
-
-  //Show, grow and color fade functionality
-  this.show = function() {
-    this.n = noise(this.time)*height;
-    this.time = this.time + this.increment;
-
-    noStroke();
-    fill(this.shade);
-    ellipse(this.xPos, this.n, this.n/this.wn+this.gird,this.n/this.wn+this.gird);
-
-    this.xPos = this.xPos - 5;
-    //this.yPos = this.yPos + this.n;
-    constrain(this.n, 0, height);
-    this.gird = this.gird + this.gSpeed;
-    if ((this.gird > 30 || this.gird < 0 )) {
-      this.gSpeed = this.gSpeed * -1;
-    }
-  }
-}
-
-
-//Push Traveler Class Function - continuously pushes new travelers under certain time conditions. 
-function pushTravelers3() {
-  this.s = second();
-  //create travelers when seconds are between 10 and 25
-  if(s>10 && s<11 || s>25 && s<27 || s>45 && s<47){
-    if(this.s%3){
-      othertraveler3.push(new Traveler3(travXPos2+width,30,55));
-    }    
-    if(this.s%5){
-      othertraveler4.push(new Traveler3(travXPos2+width,1000,255));
-    }    
-  }
-
-  for (var i = othertraveler3.length-1; i >= 0; i--) {
-    othertraveler3[i].show();
-  }  
-  for (var i = othertraveler4.length-1; i >= 0; i--) {
-    othertraveler4[i].show();
-  }  
-
-
 }
 
 //Moving rect grid background - this is actually a class for just one rectangle with methods.
@@ -526,7 +443,7 @@ function Grid(tempX, tempY, tempO) {
     this.time = this.time + this.increment;
 
     noStroke();
-    fill(30,30,30,this.o);
+    fill(255,255,255,this.o);
     rectMode(CENTER);
     rect(this.xPos, this.yPos, 5+this.n, 5+this.n, this.cornerVariance)
 
@@ -604,10 +521,10 @@ function pushEveryClass() {
   burst2.push(new Burst(xMov*-1, yMov*-1));
 
   //microbe classes - two colorful and two black and white moving in a mirrored pattern
-  microbe.push(new Microbe(xMov, yMov, 220, 20, 127, 1));
-  microbe2.push(new Microbe(xMov*-1, yMov, 20, 20, 20, 10));
-  microbe3.push(new Microbe(xMov*-1, yMov*-1, 220, 20, 127, 1));
-  microbe4.push(new Microbe(xMov, yMov*-1, 20, 20, 20, 10));
+  microbe.push(new Microbe(xMov, yMov, 220, 20, 127, 20));
+  microbe2.push(new Microbe(xMov*-1, yMov, 20, 20, 20, 60));
+  microbe3.push(new Microbe(xMov*-1, yMov*-1, 220, 20, 127, 20));
+  microbe4.push(new Microbe(xMov, yMov*-1, 20, 20, 20, 60));
 
   //spray to follow the microbe as it grows
   mover.push(new Mover(xMov, yMov)); 
@@ -687,27 +604,27 @@ function garbageMan() {
     burst2.splice(0,1); 
   }
   //Constrain microbes to 1000 at a time
-  if (microbe.length > 500){
+  if (microbe.length > 1000){
     microbe.splice(0,1); 
   }
   //Constrain microbes to 1000 at a time
-  if (microbe2.length > 500){
+  if (microbe2.length > 1000){
     microbe2.splice(0,1); 
   }
   //Constrain microbes to 1000 at a time
-  if (microbe3.length > 500){
+  if (microbe3.length > 1000){
     microbe3.splice(0,1); 
   }
   //Constrain microbes to 1000 at a time
-  if (microbe4.length > 500){
+  if (microbe4.length > 1000){
     microbe4.splice(0,1); 
   }
   //Constrain spray movers to 300 at a time
-  if (mover.length > 250){
+  if (mover.length > 300){
     mover.splice(0,1); 
   }
   //Constrain spray movers to 300 at a time
-  if (mover2.length > 250){
+  if (mover2.length > 300){
     mover2.splice(0,1); 
   }
   //Constrain center movers to 20 at a time
@@ -719,27 +636,19 @@ function garbageMan() {
     movercenter2.splice(0,1); 
   }
   //Constrain center movers to 20 at a time
-  if (traveler.length > 200){
+  if (traveler.length > 800){
     traveler.splice(0,1); 
   }
   //Constrain center movers to 20 at a time
-  if (traveler2.length > 200){
+  if (traveler2.length > 800){
     traveler2.splice(0,1); 
   }  
   //Constrain center movers to 20 at a time
-  if (othertraveler.length > 500){
+  if (othertraveler.length > 800){
     othertraveler.splice(0,1); 
   }  
     //Constrain center movers to 20 at a time
-  if (othertraveler2.length > 500){
+  if (othertraveler2.length > 800){
     othertraveler2.splice(0,1); 
-  }  
-    //Constrain center movers to 20 at a time
-  if (othertraveler3.length > 200){
-    othertraveler3.splice(0,1); 
-  }  
-    //Constrain center movers to 20 at a time
-  if (othertraveler4.length > 200){
-    othertraveler4.splice(0,1); 
   }  
 }
